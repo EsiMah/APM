@@ -1,0 +1,9 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Mahmoodi
+    given-names: Ehsan
+    orcid: https://orcid.org/0000-0002-3810-5313
+title: APM
+version: 1.0
+date-released: 2023-07-10
