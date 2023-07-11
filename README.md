@@ -3,4 +3,4 @@ This is a simplified implementation of a data-driven bottleneck detection method
 ##DOI
 [![DOI](https://zenodo.org/badge/664727811.svg)](https://zenodo.org/badge/latestdoi/664727811)
 
-#How to use
+# How to use
