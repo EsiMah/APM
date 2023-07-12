@@ -4,3 +4,4 @@ This is a simplified implementation of a data-driven bottleneck detection method
 [![DOI](https://zenodo.org/badge/664727811.svg)](https://zenodo.org/badge/latestdoi/664727811)
 
 # How to use
+![Screenshot 2023-07-12 192941](https://github.com/EsiMah/APM/assets/125956561/8be4e19d-3b59-4471-89ae-3bb2cdf078c6)
