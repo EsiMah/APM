@@ -4,7 +4,7 @@ This repository is a simplified implementation of a data-driven bottleneck detec
 # Active Period Method
 The active period method is a bottleneck analysis method that works based on the state of the resources. This method can be used to find the bottlenecks that limit the throughput of a system. 
 ## DOI
-[![DOI](https://zenodo.org/badge/664727811.svg)](https://zenodo.org/badge/latestdoi/664727811)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8140390.svg)](https://doi.org/10.5281/zenodo.8140390)
 # Structure of the code
 This version of the software gets the number of resources (R) and the number of obeservations (O), and then generates a random dataset of zeros and ones with size (R*O) to show the inactive and active periods of each resource. For instance following matix is gnereated for 3 resources and 10 observations (whihc code be 10 seconds or mintes). Zeros and ones shows the state cahnges for each resource. 
 
