@@ -7,9 +7,13 @@ The active period method is a bottleneck analysis method that works based on the
 [![DOI](https://zenodo.org/badge/664727811.svg)](https://zenodo.org/badge/latestdoi/664727811)
 # Structure of the code
 This version of the software gets the number of resources (R) and the number of obeservations (O), and then generates a random dataset of zeros and ones with size (R*O) to show the inactive and active periods of each resource. For instance following matix is gnereated for 3 resources and 10 observations (whihc code be 10 seconds or mintes). Zeros and ones shows the state cahnges for each resource. 
+
 [0 0 0 1 1 0 1 0 1 0
+
  0 1 0 1 0 0 1 1 0 0
+
  0 0 0 0 1 1 0 0 1 0]
+
 # How to use
 ## Option 1
   1- Download the repository
