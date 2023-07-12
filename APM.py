@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import random
-
+import sys
+from PyQt5 import QtWidgets, QtCore, QtGui
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import random
 class ResourceTracker:
     def __init__(self, resource_states):
         self.resource_states = resource_states
@@ -51,10 +55,6 @@ class ResourceTracker:
                     bn_list.append((period, resource))
                     last_bn_end = end
                     last_bn_duration = duration
-                # elif start > last_bn_end:  # Start of entry is after last_bn_end
-                #     bn_list.append((period, resource))
-                #     last_bn_end = end
-                #     last_bn_duration = duration
 
         return bn_list
     def ShiftingBottleneck (self):
@@ -69,11 +69,12 @@ class ResourceTracker:
                     overlap_end = end1
                     shifting_periods.append(((max(overlap_start-1,0), overlap_end), bottleneck_periods[i][1], bottleneck_periods[j][1]))
         return shifting_periods
-    def visualize(self):
+    def visualize(self, ax=None):
         bottleneck_periods = self.find_bottlenecks()
         
-        # Create a new figure
-        fig, ax = plt.subplots()
+        # Create a new figure if no ax object is provided
+        if ax is None:
+            fig, ax = plt.subplots()
 
         # Plot each resource's state over time
         for i, states in enumerate(self.resource_states):
@@ -98,22 +99,139 @@ class ResourceTracker:
         ax.set_ylabel('Resource')
         ax.legend()
 
-        # Display the plot
-        plt.show()
+        # Display the plot if no ax object is provided
+        if ax is None:
+            plt.show()
 
-# resource_states = [[1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0], 
-#                    [0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0], 
-#                    [1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1]]
-resource_states = []
-for i in range(5):
-    sublist = [random.randint(0, 1) for j in range(15)]
-    resource_states.append(sublist)
-print (resource_states)
 
-tracker = ResourceTracker(resource_states)
-print (tracker.active_periods())
-print(tracker.find_bottlenecks())
-print(tracker.ShiftingBottleneck())
-tracker.visualize()
-# for resource, periods in enumerate(active_periods):
-#     print(f"Resource {resource} has active periods: {periods}")
+class Window(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Set window title to "APM"
+        self.setWindowTitle("APM")
+        
+        # Add maximize and minimize buttons to window
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
+
+        self.input_label = QtWidgets.QLabel("Number of Resources:")
+        self.input_field = QtWidgets.QLineEdit()
+        self.input_field.setText('5') # Set default value
+        # self.input_field.setMaximumHeight(100) # Set minimum width of text box
+        self.input_field.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred) # Set fixed horizontal size policy
+
+        # Create label and text box for number of observations
+        self.obs_label = QtWidgets.QLabel("Number of Observations:")
+        self.obs_field = QtWidgets.QLineEdit()
+        self.obs_field.setText('15') # Set default value
+        # self.obs_field.setMinimumWidth(200) # Set minimum width of text box
+        self.obs_field.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred) # Set fixed horizontal size policy
+
+        self.button = QtWidgets.QPushButton("Perform APM")
+        self.button.clicked.connect(self.perform_class)
+        # self.button.setMinimumWidth(100) # Set minimum width of button
+        self.button.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred) # Set fixed horizontal size policy
+        
+        # Add QPlainTextEdit to display resource_states matrix
+        self.matrix_label = QtWidgets.QLabel("Resource States Matrix:")
+        self.matrix_display = QtWidgets.QPlainTextEdit()
+        self.matrix_display.setReadOnly(True)
+        # self.matrix_display.setMaximumWidth(200)
+
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        
+        # Create left layout
+        left_layout = QtWidgets.QVBoxLayout()
+        left_layout.addWidget(self.input_label)
+        left_layout.addWidget(self.input_field)
+        left_layout.addWidget(self.button)
+        
+        # Create right layout
+        right_layout = QtWidgets.QVBoxLayout()
+        right_layout.addWidget(self.matrix_label)
+        right_layout.addWidget(self.matrix_display)
+                 
+        # Create upper layout
+       # Create upper layout
+        upper_layout = QtWidgets.QHBoxLayout()
+        left_layout = QtWidgets.QVBoxLayout()
+        left_layout.addWidget(self.input_label)
+        left_layout.addWidget(self.input_field)
+        left_layout.addWidget(self.obs_label)
+        left_layout.addWidget(self.obs_field)
+        left_layout.addWidget(self.button)
+        right_layout = QtWidgets.QVBoxLayout()
+        right_layout.addWidget(self.matrix_label)
+        right_layout.addWidget(self.matrix_display)
+        upper_layout.addLayout(left_layout)
+        upper_layout.addLayout(right_layout)
+        
+        # Create lower layout
+        lower_layout = QtWidgets.QVBoxLayout()
+        lower_layout.addWidget(self.canvas)
+        
+        # Create splitter to make segments resizable by mouse and set stretch factor
+        splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        upper_widget = QtWidgets.QWidget()
+        upper_widget.setLayout(upper_layout)
+        lower_widget = QtWidgets.QWidget()
+        lower_widget.setLayout(lower_layout)
+        splitter.addWidget(upper_widget)
+        splitter.addWidget(lower_widget)
+        splitter.setStretchFactor(0, 1) # Set stretch factor of upper widget to 1
+        splitter.setStretchFactor(1, 4) # Set stretch factor of lower widget to 4
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(splitter)
+        self.setLayout(layout)
+
+               # Change font size of widgets in upper layout to 14
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        for widget in [self.input_label, self.input_field, self.obs_label, self.obs_field, self.button, self.matrix_label, self.matrix_display]:
+            widget.setFont(font)
+
+    def perform_class(self):
+        num_resources_str = self.input_field.text()
+        num_observations_str = self.obs_field.text()
+        # Check if input field is empty
+        if not num_resources_str:
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Please enter the number of resources')
+            return
+        
+        num_resources = int(num_resources_str)
+        num_observations = int(num_observations_str)
+        # Generate random resource states
+        resource_states = []
+        for i in range(num_resources):
+            sublist = [random.randint(0, 1) for j in range(num_observations)]
+            resource_states.append(sublist)
+              # Display resource_states matrix in matrix_display widget
+
+        matrix_str = '\n'.join([' '.join(map(str, row)) for row in resource_states])
+        self.matrix_display.setPlainText(matrix_str)
+        
+        # Create ResourceTracker instance and perform calculations
+        tracker = ResourceTracker(resource_states)
+        active_periods = tracker.active_periods()
+        bottlenecks = tracker.find_bottlenecks()
+        shifting_bottleneck = tracker.ShiftingBottleneck()
+        
+        # Visualize results in embedded matplotlib graph
+        self.figure.clear()
+        ax = self.figure.add_subplot(111)
+        ax.clear()
+        tracker.visualize(ax=ax)
+        self.canvas.draw()
+
+
+
+        
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+
+    main = Window()
+    main.show()
+
+    sys.exit(app.exec_())
